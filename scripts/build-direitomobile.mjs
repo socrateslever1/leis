@@ -1,10 +1,10 @@
 import { mkdir, rm, readdir, copyFile, open, writeFile, access } from 'node:fs/promises';
-import { join, resolve, relative } from 'node:path';
+import { join, resolve, dirname } from 'node:path';
+import { fileURLToPath } from 'node:url';
 
-const root = resolve(import.meta.dirname ?? new URL('..', import.meta.url).pathname, '..');
+const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const out = join(root, 'dist');
 const site = join(root, 'site', 'index.html');
-const repo = 'socrateslever1/leis';
 
 await rm(out, { recursive: true, force: true });
 await mkdir(out, { recursive: true });
