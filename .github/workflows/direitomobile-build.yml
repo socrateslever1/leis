@@ -1,0 +1,53 @@
+name: Validar build do DireitoMobile
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'package.json'
+      - 'scripts/build-direitomobile.mjs'
+      - 'site/**'
+      - '.github/workflows/direitomobile-build.yml'
+  pull_request:
+    paths:
+      - 'package.json'
+      - 'scripts/build-direitomobile.mjs'
+      - 'site/**'
+      - '.github/workflows/direitomobile-build.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout parcial para evitar clonar o acervo completo
+        uses: actions/checkout@v4
+        with:
+          filter: blob:none
+          sparse-checkout-cone-mode: false
+          sparse-checkout: |
+            package.json
+            scripts/build-direitomobile.mjs
+            site/index.html
+            constituicao.md
+            federal/decretos-lei/1940/del-2848-1940-12-07.md
+            federal/decretos-lei/1941/del-3689-1941-10-03.md
+            federal/decretos-lei/1969/del-1001-1969-10-21.md
+            federal/decretos-lei/1969/del-1002-1969-10-21.md
+      - name: Preparar Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - name: Verificar sintaxe
+        run: node --check scripts/build-direitomobile.mjs
+      - name: Compilar
+        run: npm run build
+      - name: Verificar arquivos de saída
+        run: |
+          test -s dist/index.html
+          test -s dist/catalogo.json
+          node --input-type=module -e "import {readFileSync} from 'node:fs'; const c=JSON.parse(readFileSync('dist/catalogo.json','utf8')); if(!Array.isArray(c)||!c.some(x=>x.path==='constituicao.md')) process.exit(1); console.log('OK: '+c.length+' normas');"
