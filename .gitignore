@@ -9,3 +9,6 @@ __pycache__/
 *.py[cod]
 *.log
 *.tmp
+
+# Artefatos gerados para o Cloudflare Pages
+dist/
