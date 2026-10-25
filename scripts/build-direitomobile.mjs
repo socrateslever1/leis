@@ -35,7 +35,7 @@ function field(text, name) {
   }
   return val;
 }
-function clean(s) { return String(s ?? '').replace(/\\s+/g, ' ').trim().slice(0, 280); }
+function clean(s) { return String(s ?? '').split(/\s+/).join(' ').trim().slice(0, 280); }
 async function add(path, category, label) {
   if (seen.has(path) || !path.endsWith('.md')) return;
   const full = join(root, path);
